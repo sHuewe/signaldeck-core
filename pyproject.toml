@@ -12,7 +12,8 @@ dependencies = [
   "flask>=3.0",
   "signaldeck-sdk>=0.1.0",
   "signaldeck-ui>=0.1.0",
-  "SQLAlchemy>=2.0.44"
+  "SQLAlchemy>=2.0.44",
+  "crontab>=1.0.1"
 ]
 
 [project.scripts]
