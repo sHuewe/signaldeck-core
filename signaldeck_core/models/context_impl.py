@@ -1,0 +1,81 @@
+from __future__ import annotations
+
+import os
+import logging
+from dataclasses import dataclass
+from flask import render_template
+from werkzeug.utils import secure_filename
+
+from signaldeck_sdk import ApplicationContext
+from signaldeck_sdk.context import Renderer, FileService
+
+
+# -------------------------------------------------
+# Renderer Implementation (Flask based)
+# -------------------------------------------------
+
+class FlaskRenderer(Renderer):
+    """
+    Concrete renderer used by the core runtime.
+    Wraps flask.render_template.
+    """
+
+    def render(self, template: str, **kwargs) -> str:
+        return render_template(template, **kwargs)
+
+
+# -------------------------------------------------
+# File Service Implementation
+# -------------------------------------------------
+
+class LocalFileService(FileService):
+    """
+    Handles file persistence inside a configured base directory.
+    """
+
+    def __init__(self, logger: logging.Logger):
+
+        self.logger = logger
+
+    def save(self, file, path: str) -> str:
+        """
+        Save uploaded file to a safe location.
+        Returns final absolute path.
+        """
+
+        # Ensure directory exists
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+
+        # Optional: sanitize filename if user-controlled
+        # filename = secure_filename(file.filename)
+        # path = os.path.join(os.path.dirname(path), filename)
+
+        file.save(path)
+
+        self.logger.debug("File saved to %s", path)
+        return path
+
+
+# -------------------------------------------------
+# Factory to build full ApplicationContext
+# -------------------------------------------------
+
+def build_application_context(
+    *,
+    values,  # your ValueProvider instance
+    logger: logging.Logger
+) -> ApplicationContext:
+    """
+    Creates a fully wired ApplicationContext instance
+    used by processors.
+    """
+
+    renderer = FlaskRenderer()
+    file_service = LocalFileService(logger=logger)
+
+    return ApplicationContext(
+        renderer=renderer,
+        files=file_service,
+        values=values,
+        logger=logger
+    )
