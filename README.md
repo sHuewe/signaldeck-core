@@ -1,32 +1,68 @@
-# SignalDeck SDK
+# SignalDeck Core
 
-The **SignalDeck SDK** defines the public plugin API for SignalDeck.
+**SignalDeck Core** is the runtime component of the SignalDeck framework.
 
 It provides:
 
-- Base classes for processors
-- The `ApplicationContext` contract
-- The `ValueProvider` registry
-- Helper utilities and shared logic
+- The Flask application runtime
+- Configuration loading
+- Processor orchestration
+- Plugin discovery and blueprint registration
+- CLI entrypoint (`signaldeck`)
+- HTTP endpoints and page composition
 
-The SDK contains **no web runtime implementation**.  
-Concrete integrations (Flask app, rendering, storage, authentication) are implemented in `signaldeck-core`.
+It does **not** contain UI templates or processor implementations.
 
 ---
 
-## Purpose
+## Architecture Overview
 
-The SDK exists to:
+SignalDeck consists of multiple layers:
 
-- Define a stable contract for plugin development
-- Separate runtime wiring from plugin logic
-- Provide reusable base implementations (e.g. `DisplayProcessor`)
-- Enable independent versioning of plugins and the core runtime
+Instance Config
+↓
+signaldeck-core
+↓
+signaldeck-sdk
+↓
+Plugins
+↓
+signaldeck-ui
+
+
+- **signaldeck-core** → Runtime and orchestration  
+- **signaldeck-sdk** → Processor contracts and base classes  
+- **signaldeck-ui** → Layout, shared macros, static assets  
+- **Plugins** → Processor implementations + component templates  
+- **Instance repo** → Private configuration and deployment  
 
 ---
 
 ## Installation
 
 ```bash
-pip install signaldeck-sdk
+pip install signaldeck-core
+```
+
+Entwicklung:
+ ```
+ py -m pip install -e . --config-settings editable_mode=compat
+ ```
+
+
+## Run application
+```
+signaldeck run --config config.json [--host 0.0.0.0] [--port 5000] [--debug] [--no-collect-data]
+```
+
+## Validate
+```
+signaldeck validate-config --config config/haus_demo.json
+```
+
+
+## List plugins
+```
+signaldeck list-plugins --config config/haus_demo.json
+
 ```
