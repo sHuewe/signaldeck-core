@@ -1,11 +1,14 @@
 import hashlib
+from signaldeck_sdk import Processor
+from typing import Dict, List
 
-class action:
+class Action:
     def __init__(self,data):
         self.value = data["value"]
         self.type = data["type"]
         self.name = data["name"]
         self.element = data["element"]
+        self.processor : Processor = None
         if "fa" in data.keys():
             self.fa = data["fa"]
         if isinstance(self.value,str):

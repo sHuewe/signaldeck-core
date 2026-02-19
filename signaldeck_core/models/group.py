@@ -1,10 +1,10 @@
 import json
-from .action import action
+from .action import Action
 import logging
 import traceback
+from typing import Dict, List
 
-
-class group:
+class Group:
     def __init__(self,data):
         self.logger=logging.getLogger(__name__)
         self.filename=data["data"]
@@ -13,9 +13,9 @@ class group:
         with open(self.filename,"r") as f:
             self.logger.info("Parse group: "+self.name)
             actions=json.load(f)
-            self.actions = []
+            self.actions: List[Action] = []
             for act in actions:
-                self.actions.append(action(act))
+                self.actions.append(Action(act))
                 self.logger.info(self.actions[-1].name)
         self.elements=[]
         self.actionsByElement={}

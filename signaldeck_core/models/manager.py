@@ -6,7 +6,7 @@ from concurrent.futures import ThreadPoolExecutor
 from crontab import CronTab
 from signaldeck_sdk import ApplicationContext
 from signaldeck_sdk import Processor
-from .group import group
+from .group import Group
 from signaldeck_sdk import ValueProvider
 from signaldeck_sdk import Cmd, Command
 from signaldeck_sdk import PersistData, DataStore
@@ -80,7 +80,7 @@ def getProcessorInstances(trans,ctx: ApplicationContext, valueProvider: ValuePro
 def getGroups(els):
     res = []
     for el in els:
-        res.append(group(el))
+        res.append(Group(el))
     return res
 
 
@@ -157,7 +157,7 @@ class Manager:
         self.dataStore=self._getDataStoresFromConfig(data)
         self.ctx= build_application_context(values=self.valueProvider,logger=self.logger)
         self.processor: Dict[Processor] = getProcessorInstances(data["processors"],self.ctx,self.valueProvider,self.cmd, self.dataStore,self.logger,collect_data)
-        self.groups = getGroups(data["groups"])
+        self.groups: List[Group] = getGroups(data["groups"])
         #Hash -> Action
         self.hashes = {}
         #Hash -> Group
@@ -186,6 +186,17 @@ class Manager:
             res[storeConfig["name"]]=classFromName(storeConfig["class"])(self._loop,**storeConfig.get("config",{}))
         return res
 
+    def getJsAndCssFilesForGroups(self,groups: List[Group]):
+        resJS = set()
+        resCSS = set()
+        for g in groups:
+            for a in g.actions:
+                jsFiles,cssFiles = self.processor[a.type].getAdditionalJsAndCssFiles(a.value)
+                for js in jsFiles:
+                    resJS.add(js)
+                for css in cssFiles:
+                    resCSS.add(css)
+        return resJS, resCSS
 
     def getGroupsForPath(self, p):
         return self.path.get(p,[])  

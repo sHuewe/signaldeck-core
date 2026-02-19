@@ -2,7 +2,7 @@ import json
 import signal
 import sys
 from typing import Any
-
+from .models.manager import Manager
 from flask import render_template, request, jsonify, abort, redirect, Flask
 
 def merged_params() -> dict[str, Any]:
@@ -32,7 +32,7 @@ def register_routes(app: Flask) -> None:
     @app.route("/", methods=["GET", "POST"])
     @app.route("/index", methods=["GET", "POST"])
     def index():
-        houseManager = app.extensions["signaldeck.manager"]
+        houseManager: Manager = app.extensions["signaldeck.manager"]
 
         actions = request.form.getlist("actions")
         app.logger.info(actions)
@@ -40,22 +40,29 @@ def register_routes(app: Flask) -> None:
             for act in actions:
                 app.logger.info("Mod cron job")
                 houseManager.setCronJob(act, request.form.get(f"cron_{act}"))
-
+        groups = houseManager.getGroupsForPath("/")
+        jsFiles, cssFiles = houseManager.getJsAndCssFilesForGroups(groups)
         return render_template(
             "core/index.html",
             paths=houseManager.getAvailablePaths(),
-            groups=houseManager.getGroupsForPath("/"),
+            groups=groups,
             title=houseManager.getTitleForPath("/"),
+            additionalCssFiles=cssFiles,
+            additionalJsFiles=jsFiles
         )
 
     @app.route("/<string:path>", methods=["GET"])
     def get_path(path: str):
         houseManager = app.extensions["signaldeck.manager"]
+        groups = houseManager.getGroupsForPath(path)
+        jsFiles, cssFiles = houseManager.getJsAndCssFilesForGroups(groups)
         return render_template(
             "core/index.html",
             paths=houseManager.getAvailablePaths(),
-            groups=houseManager.getGroupsForPath(path),
+            groups=groups,
             title=houseManager.getTitleForPath(path),
+            additionalCssFiles=cssFiles,
+            additionalJsFiles=jsFiles
         )
 
     @app.route("/init")

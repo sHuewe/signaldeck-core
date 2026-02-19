@@ -3,11 +3,11 @@ from __future__ import annotations
 import os
 import logging
 from dataclasses import dataclass
-from flask import render_template
+from flask import render_template, url_for
 from werkzeug.utils import secure_filename
 
 from signaldeck_sdk import ApplicationContext
-from signaldeck_sdk.context import Renderer, FileService
+from signaldeck_sdk.context import Renderer, FileService, UrlResolver
 
 
 # -------------------------------------------------
@@ -22,6 +22,20 @@ class FlaskRenderer(Renderer):
 
     def render(self, template: str, **kwargs) -> str:
         return render_template(template, **kwargs)
+
+
+# -------------------------------------------------
+# Renderer Implementation (Flask based)
+# -------------------------------------------------
+
+class UrlFlaskResolver(UrlResolver):
+    """
+    Concrete url resolver used by the core runtime.
+    """
+
+    def forFile(self, pluginName: str, filePath: str) -> str:
+        return url_for(f'{pluginName}.static', filename=filePath)
+
 
 
 # -------------------------------------------------
@@ -71,10 +85,12 @@ def build_application_context(
     """
 
     renderer = FlaskRenderer()
+    urlresolver = UrlFlaskResolver()
     file_service = LocalFileService(logger=logger)
 
     return ApplicationContext(
         renderer=renderer,
+        url=urlresolver,
         files=file_service,
         values=values,
         logger=logger
