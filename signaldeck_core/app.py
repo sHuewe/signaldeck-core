@@ -69,11 +69,11 @@ def index():
         for act in actions:
             app.logger.info("Mod cron job")
             houseManager.setCronJob(act,request.form.get(f'cron_{act}'))
-    return render_template('core/index.html', paths=houseManager.getAvailablePaths(), groups=houseManager.getGroupsForPath("/"), title = houseManager.getTitleForPath("/"))
+    return render_template('ui/index.html', paths=houseManager.getAvailablePaths(), groups=houseManager.getGroupsForPath("/"), title = houseManager.getTitleForPath("/"))
 
 @app.route("/<string:path>", methods=["GET"])
 def get_path(path):
-    return render_template('core/index.html', paths=houseManager.getAvailablePaths(), groups=houseManager.getGroupsForPath(path), title = houseManager.getTitleForPath(path))
+    return render_template('ui/index.html', paths=houseManager.getAvailablePaths(), groups=houseManager.getGroupsForPath(path), title = houseManager.getTitleForPath(path))
 @app.route("/init")
 def init():
     houseManager.reinit()
@@ -99,7 +99,7 @@ def cronjob():
     gr = houseManager.groupFromHash[actionhash]
     el = gr.elementByAction[houseManager.hashes[actionhash]]
     actions = gr.actionsByElement[el]
-    return render_template('cronjob.html',actions = actions,crons=houseManager.getCronsForActions(actions), action_url= f'{request.host}/run?actionhash=', additional_parameters=f'&redirect=home')
+    return render_template('core/cronjob.html',actions = actions,crons=houseManager.getCronsForActions(actions), action_url= f'{request.host}/run?actionhash=', additional_parameters=f'&redirect=home')
 
 @app.route("/http/<string:name>", methods=["GET"])
 def get_http(name):

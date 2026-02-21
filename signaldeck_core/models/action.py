@@ -8,11 +8,16 @@ class Action:
         self.type = data["type"]
         self.name = data["name"]
         self.element = data["element"]
+        self.cronjob_support = data.get("cronjob",False)
         self.processor : Processor = None
         if "fa" in data.keys():
             self.fa = data["fa"]
         if isinstance(self.value,str):
             self.value=[self.value]
+
+
+    def supports_cronjob(self):
+        return self.cronjob_support
 
 
     def getHash(self):

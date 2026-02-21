@@ -6,6 +6,11 @@ from typing import Dict, List
 
 class Group:
     def __init__(self,data):
+        '''
+        Items in group-json are actions.
+        Actions contain to an element. (1 element has 1 or more actions, but 1 action only has 1 element)
+        The mapping actions to element is done here.
+        '''
         self.logger=logging.getLogger(__name__)
         self.filename=data["data"]
         self.name = data["name"]
@@ -18,7 +23,7 @@ class Group:
                 self.actions.append(Action(act))
                 self.logger.info(self.actions[-1].name)
         self.elements=[]
-        self.actionsByElement={}
+        self.actionsByElement: Dict[str, List[Action]] = {}
         self.elementByAction={}
         for a in self.actions:
             if a.element is None:
@@ -28,6 +33,12 @@ class Group:
                 self.actionsByElement[a.element]=[]
             self.actionsByElement[a.element].append(a)
             self.elementByAction[a]=a.element
+
+    def element_supports_cronjob(self, element):
+        for action in self.actionsByElement[element]:
+            if action.supports_cronjob():
+                return True
+        return False
 
     def getStateForElement(self,element):
         res=""

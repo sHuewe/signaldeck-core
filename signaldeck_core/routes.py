@@ -43,7 +43,7 @@ def register_routes(app: Flask) -> None:
         groups = houseManager.getGroupsForPath("/")
         jsFiles, cssFiles = houseManager.getJsAndCssFilesForGroups(groups)
         return render_template(
-            "core/index.html",
+            "ui/index.html",
             paths=houseManager.getAvailablePaths(),
             groups=groups,
             title=houseManager.getTitleForPath("/"),
@@ -57,7 +57,7 @@ def register_routes(app: Flask) -> None:
         groups = houseManager.getGroupsForPath(path)
         jsFiles, cssFiles = houseManager.getJsAndCssFilesForGroups(groups)
         return render_template(
-            "core/index.html",
+            "ui/index.html",
             paths=houseManager.getAvailablePaths(),
             groups=groups,
             title=houseManager.getTitleForPath(path),

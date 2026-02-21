@@ -66,3 +66,8 @@ signaldeck validate-config --config config/haus_demo.json
 signaldeck list-plugins --config config/haus_demo.json
 
 ```
+
+## Get config for processor
+```
+signaldeck get-config --processor signaldeck_plugin_main.processors.dummy_data.data.Data
+```

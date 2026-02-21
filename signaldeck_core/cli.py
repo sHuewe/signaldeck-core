@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from signaldeck_core.app_factory import create_app
-
+from .render_config import render_processor_config
 
 def _load_raw_config(path: str) -> dict[str, Any]:
     """
@@ -131,6 +131,31 @@ def cmd_list_plugins(args: argparse.Namespace) -> int:
 
     return 0
 
+def cmd_get_config(args) -> int:
+    cfg = render_processor_config(args.processor)
+    totalConfig = {
+        "name": args.name or args.processor.split(".")[-1],
+        "class": args.processor,
+        "config": cfg
+    }
+    if args.add_config:
+        # Load existing config file if it exists, otherwise start with empty list
+        existing = []
+        try:
+            with open(args.add_config, "r", encoding="utf-8") as f:
+                existing = json.load(f)
+                if "processors" not in existing.keys():
+                  existing["processors"]= []        
+                existing["processors"].append(totalConfig)
+        except FileNotFoundError:
+            print(f"Config file {args.add_config} not found. A new one will be created.")
+            existing = {"page_title":"Title","data_stores": [], "processors": [totalConfig], "groups":[],"cmd":{"alias":[],"scripts":[]}}
+        with open(args.add_config, "w", encoding="utf-8") as f:
+            json.dump(existing, f, indent=2, ensure_ascii=False)
+        print(f"Appended processor config to {args.add_config}")
+    print(json.dumps(totalConfig, indent=2, ensure_ascii=False))
+    return 0
+
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="signaldeck")
@@ -171,6 +196,12 @@ def build_parser() -> argparse.ArgumentParser:
     lp = sub.add_parser("list-plugins", help="List plugins referenced by config")
     lp.add_argument("--config", required=True, help="Path to instance config (json)")
     lp.set_defaults(func=cmd_list_plugins)
+
+    get_conf = sub.add_parser("get-config", help="Print default config for a processor class")
+    get_conf.add_argument("--name", required=False, help="Name of processor instance")
+    get_conf.add_argument("--processor", required=True, help="Fully qualified class path")
+    get_conf.add_argument("--add-config", default=None, help="Append processor config to existing config file (path)")
+    get_conf.set_defaults(func=cmd_get_config)
 
     return p
 

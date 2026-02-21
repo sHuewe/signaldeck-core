@@ -1,0 +1,29 @@
+{% import 'core/group.html' as gr %}
+{% extends 'ui/layout.html' %}
+
+{% block content %}
+    
+    <form action="/" method="POST">
+        
+        {% for ac, cron in zip(actions,crons) %}
+        <div class="crontab-row">
+            <input type="hidden" name="actions" value="{{ ac.getHash() }}">
+            <div class="crontab-row-label">
+                {{ ac.name }}
+                <button type="button"
+                  class="copy-btn"
+                  data-hash="{{ action_url  + ac.getHash() + additional_parameters }}"
+                  aria-label="Hash in Zwischenablage kopieren">
+            <i class="fa-solid fa-copy"></i>
+          </button>
+            </div>
+            <div class="crontab-row-value"><input type="text" name="cron_{{ ac.getHash() }}" value="{{ cron }}"/></div>
+        </div>
+        {% endfor %}
+        <input type="submit"></input>
+    </form>
+    <span>Minute Hour Day(Month) Month Day(Week)</span>
+    <a href="https://crontab.guru/">Beispiele</a>
+   
+    
+{% endblock %}

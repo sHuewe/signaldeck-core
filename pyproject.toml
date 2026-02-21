@@ -21,3 +21,8 @@ signaldeck = "signaldeck_core.cli:main"
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["signaldeck_core*"]
+
+[tool.setuptools.package-data]
+signaldeck_core = [
+  "templates/**/*"
+]

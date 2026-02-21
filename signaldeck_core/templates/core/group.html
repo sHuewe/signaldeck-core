@@ -1,0 +1,38 @@
+{% macro renderGroup(group) -%}
+<div class="control-element">
+    <div class="control-element-head">{{ group.name }}</div>
+    {% for element in group.elements %}
+    <div class="control-element-content">
+        <div class="conrol-element-item">
+            <div class="control-element-item-name">
+                {{ element}}
+            </div>
+            {% if group.element_supports_cronjob(element) %}
+            <a href="/cronjob?elementhash={{ group.actionsByElement[element][0].getHash() }}"><i
+                    class="far fa-clock"></i></a>
+            {% endif %}
+            <div class="control-element-buttons">
+                {% for action in group.actionsByElement[element] %}
+                {% if action.isFA() %}
+                <i class="control-element-button {{ action.fa }} icon" data-actionhash="{{ action.getHash()}}"
+                    data-element="{{ element }}"></i>
+                {% else %}
+                <div class="control-element-button" data-actionhash="{{ action.getHash()}}"
+                    data-element="{{ element }}">{{ action.name }}</div>
+                {% endif %}
+                {% endfor %}
+
+            </div>
+        </div>
+        <div class="state" id="state-{{ element }}">{{ group.getStateForElement(element) | safe }}</div>
+    </div>
+    {% endfor %}
+
+</div>
+
+{%- endmacro %}
+
+{%- macro textarea(name, value='', rows=10, cols=40) -%}
+<textarea name="{{ name }}" rows="{{ rows }}" cols="{{ cols
+        }}">{{ value|e }}</textarea>
+{%- endmacro %}
