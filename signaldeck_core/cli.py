@@ -149,7 +149,7 @@ def cmd_get_config(args) -> int:
                 existing["processors"].append(totalConfig)
         except FileNotFoundError:
             print(f"Config file {args.add_config} not found. A new one will be created.")
-            existing = {"page_title":"Title","data_stores": [], "processors": [totalConfig], "groups":[],"cmd":{"alias":[],"scripts":[]}}
+            existing = {"page_title":"Title","i18n":{"lang":"en","lang_fallback":"en"},"data_stores": [], "processors": [totalConfig], "groups":[],"cmd":{"alias":[],"scripts":[]}}
         with open(args.add_config, "w", encoding="utf-8") as f:
             json.dump(existing, f, indent=2, ensure_ascii=False)
         print(f"Appended processor config to {args.add_config}")

@@ -13,7 +13,7 @@ from signaldeck_sdk import Placeholder
 
 # ---------- Placeholder handling ----------
 
-_PLACEHOLDER_FULL_RE = re.compile(r"^\$([A-Z0-9_]+)\$$")
+_PLACEHOLDER_FULL_RE = re.compile(r"^\$([a-zA-Z0-9_]+)\$$")
 
 
 def _find_placeholders(obj: Any) -> list[str]:

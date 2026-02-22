@@ -8,6 +8,7 @@ from werkzeug.utils import secure_filename
 
 from signaldeck_sdk import ApplicationContext
 from signaldeck_sdk.context import Renderer, FileService, UrlResolver
+from .translator import TranslatorImpl
 
 
 # -------------------------------------------------
@@ -68,6 +69,8 @@ class LocalFileService(FileService):
 
         self.logger.debug("File saved to %s", path)
         return path
+    
+
 
 
 # -------------------------------------------------
@@ -77,7 +80,9 @@ class LocalFileService(FileService):
 def build_application_context(
     *,
     values,  # your ValueProvider instance
-    logger: logging.Logger
+    logger: logging.Logger,
+    lang: str = 'en',
+    lang_fallback: str = 'en'
 ) -> ApplicationContext:
     """
     Creates a fully wired ApplicationContext instance
@@ -87,11 +92,13 @@ def build_application_context(
     renderer = FlaskRenderer()
     urlresolver = UrlFlaskResolver()
     file_service = LocalFileService(logger=logger)
+    transl = TranslatorImpl(lang, lang_fallback)
 
     return ApplicationContext(
         renderer=renderer,
         url=urlresolver,
         files=file_service,
+        translator=transl,
         values=values,
         logger=logger
     )

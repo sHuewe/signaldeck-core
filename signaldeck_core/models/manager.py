@@ -93,10 +93,11 @@ class Manager:
         self.configPath=configPath
         self.initAsync()
         self.parseConfig(collect_data)
-        self.use_bluebrints(app)
+        self._init_plugins(app)
+
         
 
-    def use_bluebrints(self,app):
+    def _init_plugins(self,app):
         alreadyHandled = set()
         for name, processor in self.processor.items():
             pluginName = processor.className.split(".")[0]
@@ -112,6 +113,10 @@ class Manager:
                         f"and be installed in the environment."
                     ) from e
                 alreadyHandled.add(pluginName)
+        self.ctx.translator.load_from_packages(list(alreadyHandled))
+        app.jinja_env.globals["t"] = self.ctx.t
+        self.logger.info(f"Initialized plugins: {', '.join(alreadyHandled)}")
+        self.logger.info(f"I18n keys: {', '.join(self.ctx.translator._primary.keys())}")
 
     def initAsync(self):
         self._loop = asyncio.new_event_loop()
@@ -155,7 +160,7 @@ class Manager:
         self.cmd.registerScripts(data.get("cmd",{}).get("script",[]))
         self.cmd.registerAliase(data.get("cmd",{}).get("alias",[]))
         self.dataStore=self._getDataStoresFromConfig(data)
-        self.ctx= build_application_context(values=self.valueProvider,logger=self.logger)
+        self.ctx= build_application_context(values=self.valueProvider,logger=self.logger,lang=data.get("i18n",{}).get("lang","en"), lang_fallback=data.get("i18n",{}).get("lang_fallback","en"))
         self.processor: Dict[Processor] = getProcessorInstances(data["processors"],self.ctx,self.valueProvider,self.cmd, self.dataStore,self.logger,collect_data)
         self.groups: List[Group] = getGroups(data["groups"])
         #Hash -> Action
