@@ -24,7 +24,7 @@ class Action:
         valueStr = ""
         for actionVal in self.value:
             valueStr+=actionVal
-        hash_object = hashlib.sha1((self.type+actionVal).encode())
+        hash_object = hashlib.sha1((self.type+valueStr).encode())
         return hash_object.hexdigest()
 
     def isFA(self):

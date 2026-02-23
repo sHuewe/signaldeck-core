@@ -41,28 +41,28 @@ def register_routes(app: Flask) -> None:
                 app.logger.info("Mod cron job")
                 houseManager.setCronJob(act, request.form.get(f"cron_{act}"))
         groups = houseManager.getGroupsForPath("/")
-        jsFiles, cssFiles = houseManager.getJsAndCssFilesForGroups(groups)
+        ui = houseManager.getJsAndCssFilesForGroups(groups)
         return render_template(
             "ui/index.html",
             paths=houseManager.getAvailablePaths(),
             groups=groups,
             title=houseManager.getTitleForPath("/"),
-            additionalCssFiles=cssFiles,
-            additionalJsFiles=jsFiles
+            additionalCssFiles=ui.css,
+            additionalJsFiles=ui.js
         )
 
     @app.route("/<string:path>", methods=["GET"])
     def get_path(path: str):
         houseManager = app.extensions["signaldeck.manager"]
         groups = houseManager.getGroupsForPath(path)
-        jsFiles, cssFiles = houseManager.getJsAndCssFilesForGroups(groups)
+        ui = houseManager.getJsAndCssFilesForGroups(groups)
         return render_template(
             "ui/index.html",
             paths=houseManager.getAvailablePaths(),
             groups=groups,
             title=houseManager.getTitleForPath(path),
-            additionalCssFiles=cssFiles,
-            additionalJsFiles=jsFiles
+            additionalCssFiles=ui.css,
+            additionalJsFiles=ui.js
         )
 
     @app.route("/init")
