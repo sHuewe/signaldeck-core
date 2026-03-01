@@ -1,11 +1,8 @@
+from __future__ import annotations
 import logging, os
 from flask import Flask
 
-from __future__ import annotations
-
 from typing import Optional
-
-from flask import Flask
 
 from jinja2 import ChoiceLoader, FileSystemLoader
 from signaldeck_ui.blueprint import bp as ui_bp
