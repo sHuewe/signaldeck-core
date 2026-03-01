@@ -34,9 +34,30 @@ class AsyncioRuntime:
         for c in coros:
             self._loop.call_soon_threadsafe(self._loop.create_task, c)
 
+
     def shutdown_loop(self):
-        tasks = [t for t in asyncio.all_tasks(self._loop) if not t.done()]
-        for t in tasks:
-            t.cancel()
-        self.logger.info(f"Cancelled {len(tasks)} tasks")
+        async def _cancel_all():
+            current = asyncio.current_task()
+            tasks = [t for t in asyncio.all_tasks() if t is not current and not t.done()]
+
+            self.logger.info(f"Cancelling {len(tasks)} asyncio tasks...")
+            for t in tasks:
+                t.cancel()
+
+            # Warten, bis alle wirklich beendet sind
+            if tasks:
+                results = await asyncio.gather(*tasks, return_exceptions=True)
+                # Optional: logge "harte" Exceptions (nicht CancelledError)
+                for r in results:
+                    if isinstance(r, Exception) and not isinstance(r, asyncio.CancelledError):
+                        self.logger.debug("Task ended with exception during shutdown", exc_info=r)
+
+        try:
+            fut = asyncio.run_coroutine_threadsafe(_cancel_all(), self._loop)
+            fut.result(timeout=5.0)
+        except Exception as e:
+            # Timeout oder andere Fehler beim Shutdown: nicht hängen bleiben
+            self.logger.warning(f"Asyncio shutdown had issues: {e!r}")
+
+        # Loop stoppen
         self._loop.call_soon_threadsafe(self._loop.stop)

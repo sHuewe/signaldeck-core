@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import argparse
+import argparse, os
 import importlib
 import json
 from pathlib import Path
@@ -53,8 +53,10 @@ def cmd_run(args: argparse.Namespace) -> int:
     collect_data=args.collect_data,
     extra_template_dirs=args.templates,
 )
-    
-    app.run(host=args.host, port=args.port, debug=args.debug)
+    debug = args.debug
+    if not debug:
+        debug = os.environ.get("SIGNALDECK_DEBUG","False").lower() == "true"
+    app.run(host=args.host, port=args.port, debug=debug)
     return 0
 
 
