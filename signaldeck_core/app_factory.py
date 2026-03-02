@@ -57,7 +57,7 @@ def create_app_from_env():
     templates = os.environ.get("SIGNALDECK_TEMPLATES", "/templates")
     log_config = os.environ.get("SIGNALDECK_LOG_CONFIG", "logging_config.json")
 
-    app = create_app(config_path=config, template_path=templates)
+    app = create_app(config_path=config, logging_config_path=log_config, template_path=templates)
     return app
 
 

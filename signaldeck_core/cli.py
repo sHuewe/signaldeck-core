@@ -55,7 +55,7 @@ def cmd_run(args: argparse.Namespace) -> int:
 )
     debug = args.debug
     if not debug:
-        debug = os.environ.get("SIGNALDECK_DEBUG","False").lower() == "true"
+        debug = os.environ.get("SIGNALDECK_DEBUG_AUTO_RELOAD","False").lower() == "true"
     app.run(host=args.host, port=args.port, debug=debug)
     return 0
 
